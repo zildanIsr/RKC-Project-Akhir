@@ -26,6 +26,11 @@ private:
 	void BuildTexturedCube();
 	void BuildTexturedPlane();
 	void DrawTexturedCube(GLuint shader);
+	void DrawTexturedChair(GLuint shader);
+	void DrawTexturedSideWhiteboard(GLuint shader);
+	void DrawTexturedWhiteboard(GLuint shader);
+	void DrawTexturedTableDosen(GLuint shader);
+	void DrawTexturedWall(GLuint shader);
 	void DrawTexturedPlane(GLuint shader);
 	void BuildDepthMap();
 	void BuildShaders();

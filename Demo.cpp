@@ -120,8 +120,8 @@ void Demo::Render() {
 	glm::mat4 lightProjection, lightView;
 	glm::mat4 lightSpaceMatrix;
 	float near_plane = 1.0f, far_plane = 7.5f;
-	lightProjection = glm::ortho(-10.0f, 10.0f, -10.0f, 10.0f, near_plane, far_plane);
-	lightView = glm::lookAt(glm::vec3(-2.0f, 4.0f, -1.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0, 1.0, 0.0));
+	lightProjection = glm::ortho(10.0f, -10.0f, -10.0f, 5.0f, near_plane, far_plane);
+	lightView = glm::lookAt(glm::vec3(0.05f, 2.5f, 0.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0, 1.0, 0.0));
 	lightSpaceMatrix = lightProjection * lightView;
 	// render scene from light's point of view
 	UseShader(this->depthmapShader);
@@ -131,6 +131,11 @@ void Demo::Render() {
 	glClear(GL_DEPTH_BUFFER_BIT);
 	DrawTexturedCube(this->depthmapShader);
 	DrawTexturedPlane(this->depthmapShader);
+	DrawTexturedChair(this->depthmapShader);
+	DrawTexturedSideWhiteboard(this->depthmapShader);
+	DrawTexturedWhiteboard(this->depthmapShader);
+	DrawTexturedTableDosen(this->depthmapShader);
+	DrawTexturedWall(this->depthmapShader);
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
 	
@@ -171,10 +176,40 @@ void Demo::Render() {
 	glBindTexture(GL_TEXTURE_2D, depthMap);
 	DrawTexturedCube(this->shadowmapShader);
 
+	//Render chair
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, texture4);
+	glActiveTexture(GL_TEXTURE1);
+	glBindTexture(GL_TEXTURE_2D, depthMap);
+	DrawTexturedChair(this->shadowmapShader);
+
+	//Render side whiteboard
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, texture5);
+	glActiveTexture(GL_TEXTURE1);
+	glBindTexture(GL_TEXTURE_2D, depthMap);
+	DrawTexturedSideWhiteboard(this->shadowmapShader);
+	
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, texture);
+	glActiveTexture(GL_TEXTURE1);
+	glBindTexture(GL_TEXTURE_2D, depthMap);
+	DrawTexturedWhiteboard(this->shadowmapShader);
+	
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, texture11);
+	glActiveTexture(GL_TEXTURE1);
+	glBindTexture(GL_TEXTURE_2D, depthMap);
+	DrawTexturedTableDosen(this->shadowmapShader);
+
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, texture6);
+	glActiveTexture(GL_TEXTURE1);
+	glBindTexture(GL_TEXTURE_2D, depthMap);
+	DrawTexturedWall(this->shadowmapShader);
+
 	glDisable(GL_DEPTH_TEST);
 }
-
-
 
 void Demo::BuildTexturedCube()
 {
@@ -504,13 +539,36 @@ void Demo::DrawTexturedCube(GLuint shader)
 		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model5));
 
 		glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
+		
+		if (i == 5 || i == 11) {
+			tz += 3;
+			t = (-8);
+		}
 
-		glActiveTexture(GL_TEXTURE);
-		glBindTexture(GL_TEXTURE_2D, texture5);
+		if (i == 2 || i == 8 || i == 14) {
+			t += 4;
+		}
+		else {
+			t += 2;
+		}
 
-		glUniform1i(glGetUniformLocation(shader, "ourTexture2"), 5);
-		//modelLoc = glGetUniformLocation(shader, "model");
 
+	}
+
+	glBindTexture(GL_TEXTURE_2D, 0);
+	glBindVertexArray(0);
+}
+
+void Demo::DrawTexturedChair(GLuint shader)
+{
+	UseShader(shader);
+	glBindVertexArray(cubeVAO);
+
+	GLint modelLoc = glGetUniformLocation(shader, "model");
+
+	int t = -6;
+	int tz = 0;
+	for (int i = 0; i < 18; i++) {
 		glm::mat4 model6;
 		model6 = glm::translate(model6, glm::vec3(t, 0, tz + 0.5));
 		model6 = glm::translate(model6, glm::vec3(0.325, -0.2, 0.55));
@@ -583,7 +641,7 @@ void Demo::DrawTexturedCube(GLuint shader)
 
 		glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
 
-		
+
 		if (i == 5 || i == 11) {
 			tz += 3;
 			t = (-8);
@@ -599,10 +657,21 @@ void Demo::DrawTexturedCube(GLuint shader)
 
 	}
 
-	glm::mat4 modelPt;
-	modelPt = glm::translate(modelPt, glm::vec3(-0.45 + 0.3, 1.275, -2.25 - 0.3));
+	glBindTexture(GL_TEXTURE_2D, 0);
+	glBindVertexArray(0);
+}
 
-	modelPt = glm::rotate(modelPt, 0.0f, glm::vec3(0, 0, 1));
+void Demo::DrawTexturedWhiteboard(GLuint shader) {
+
+	UseShader(shader);
+	glBindVertexArray(cubeVAO);
+
+	GLint modelLoc = glGetUniformLocation(shader, "model");
+
+	glm::mat4 modelPt;
+	modelPt = glm::translate(modelPt, glm::vec3(-0.45 + 0.3, 1.275, -2.25 - 0.6));
+
+	modelPt = glm::rotate(modelPt, glm::radians(180.0f), glm::vec3(1, 0, 0));
 
 	modelPt = glm::scale(modelPt, glm::vec3(2, 1, 0.05));
 
@@ -610,12 +679,19 @@ void Demo::DrawTexturedCube(GLuint shader)
 
 	glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
 
-	glActiveTexture(GL_TEXTURE);
-	glBindTexture(GL_TEXTURE_2D, texture6);
+	glBindTexture(GL_TEXTURE_2D, 0);
+	glBindVertexArray(0);
+}
 
+void Demo::DrawTexturedSideWhiteboard(GLuint shader) {
+
+	UseShader(shader);
+	glBindVertexArray(cubeVAO);
+
+	GLint modelLoc = glGetUniformLocation(shader, "model");
 
 	glm::mat4 modelPt2;
-	modelPt2 = glm::translate(modelPt2, glm::vec3(-2.575 + 0.3, 0.425, -2.25 - 0.3));
+	modelPt2 = glm::translate(modelPt2, glm::vec3(-2.575 + 0.3, 0.425, -2.25 - 0.6));
 
 	modelPt2 = glm::rotate(modelPt2, 0.0f, glm::vec3(0, 0, 1));
 
@@ -627,7 +703,7 @@ void Demo::DrawTexturedCube(GLuint shader)
 
 
 	glm::mat4 modelPt3;
-	modelPt3 = glm::translate(modelPt3, glm::vec3(1.65 + 0.3, 0.425, -2.25 - 0.3));
+	modelPt3 = glm::translate(modelPt3, glm::vec3(1.65 + 0.3, 0.425, -2.25 - 0.6));
 
 	modelPt3 = glm::rotate(modelPt3, 0.0f, glm::vec3(0, 0, 1));
 
@@ -638,7 +714,7 @@ void Demo::DrawTexturedCube(GLuint shader)
 	glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
 
 	glm::mat4 modelPt4;
-	modelPt4 = glm::translate(modelPt4, glm::vec3(1.65 + 0.3, -0.45, -2.25 - 0.3));
+	modelPt4 = glm::translate(modelPt4, glm::vec3(1.65 + 0.3, -0.45, -2.25 - 0.6));
 
 	modelPt4 = glm::rotate(modelPt4, 0.0f, glm::vec3(0, 0, 1));
 
@@ -649,7 +725,7 @@ void Demo::DrawTexturedCube(GLuint shader)
 	glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
 
 	glm::mat4 modelPt5;
-	modelPt5 = glm::translate(modelPt5, glm::vec3(-2.575 + 0.3, -0.45, -2.25 - 0.3));
+	modelPt5 = glm::translate(modelPt5, glm::vec3(-2.575 + 0.3, -0.45, -2.25 - 0.6));
 
 	modelPt5 = glm::rotate(modelPt5, 0.0f, glm::vec3(0, 0, 1));
 
@@ -660,7 +736,7 @@ void Demo::DrawTexturedCube(GLuint shader)
 	glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
 
 	glm::mat4 modelPt6;
-	modelPt6 = glm::translate(modelPt6, glm::vec3(-2.475 + 0.3, 1.375, -2.25 - 0.3));
+	modelPt6 = glm::translate(modelPt6, glm::vec3(-2.475 + 0.3, 1.375, -2.25 - 0.6));
 
 	modelPt6 = glm::rotate(modelPt6, 0.0f, glm::vec3(0, 0, 1));
 
@@ -671,7 +747,7 @@ void Demo::DrawTexturedCube(GLuint shader)
 	glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
 
 	glm::mat4 modelPt7;
-	modelPt7 = glm::translate(modelPt7, glm::vec3(1.6 +0.3, 1.375, -2.25 - 0.3));
+	modelPt7 = glm::translate(modelPt7, glm::vec3(1.6 + 0.3, 1.375, -2.25 - 0.6));
 
 	modelPt7 = glm::rotate(modelPt7, 0.0f, glm::vec3(0, 0, 1));
 
@@ -681,12 +757,133 @@ void Demo::DrawTexturedCube(GLuint shader)
 
 	glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
 
+	glBindTexture(GL_TEXTURE_2D, 0);
+	glBindVertexArray(0);
+}
+
+void Demo::DrawTexturedTableDosen(GLuint shader)
+{
+	UseShader(shader);
+	glBindVertexArray(cubeVAO);
+
+	GLint modelLoc = glGetUniformLocation(shader, "model");
+
+	int t = -6;
+	int tz = -3;
+	
+		glm::mat4 model;
+		model = glm::translate(model, glm::vec3(t, 0, tz));
+		model = glm::translate(model, glm::vec3(0.65, 0, -0.25));
+
+		model = glm::rotate(model, 0.0f, glm::vec3(0, 0, 1));
+
+		model = glm::scale(model, glm::vec3(0.1, 0.5, 0.1));
+
+		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+
+		glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
+
+		glm::mat4 model2;
+		model2 = glm::translate(model2, glm::vec3(t, 0, tz));
+		model2 = glm::translate(model2, glm::vec3(-0.875, 0, -0.25));
+
+		model2 = glm::rotate(model2, 0.0f, glm::vec3(0, 0, 1));
+
+		model2 = glm::scale(model2, glm::vec3(0.1, 0.5, 0.1));
+
+		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model2));
+
+		glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
+
+		glm::mat4 model3;
+		model3 = glm::translate(model3, glm::vec3(t, 0, tz));
+		model3 = glm::translate(model3, glm::vec3(-0.875, 0, 0.75));
+
+		model3 = glm::rotate(model3, 0.0f, glm::vec3(0, 0, 1));
+
+		model3 = glm::scale(model3, glm::vec3(0.1, 0.5, 0.1));
+
+		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model3));
+
+		glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
+
+		glm::mat4 model4;
+		model4 = glm::translate(model4, glm::vec3(t, 0, tz));
+		model4 = glm::translate(model4, glm::vec3(0.65, 0, 0.75));
+
+		model4 = glm::rotate(model4, 0.0f, glm::vec3(0, 0, 1));
+
+		model4 = glm::scale(model4, glm::vec3(0.1, 0.5, 0.1));
+
+		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model4));
+
+		glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
+
+		glm::mat4 model5;
+		model5 = glm::translate(model5, glm::vec3(t, 0, tz));
+		model5 = glm::translate(model5, glm::vec3(-0.115, 0.55, 0.25));
+
+		model5 = glm::rotate(model5, 0.0f, glm::vec3(0, 0, 1));
+
+		model5 = glm::scale(model5, glm::vec3(0.875, 0.1, 0.6));
+
+		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model5));
+
+		glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
+
+		glm::mat4 model6;
+		model6 = glm::translate(model6, glm::vec3(t, 0, tz));
+		model6 = glm::translate(model6, glm::vec3(0.65, 0.2, 0.25));
+
+		model6 = glm::rotate(model6, 0.0f, glm::vec3(0, 0, 1));
+
+		model6 = glm::scale(model6, glm::vec3(0.1, 0.35, 0.6));
+
+		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model6));
+
+		glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
+
+		glm::mat4 model7;
+		model7 = glm::translate(model7, glm::vec3(t, 0, tz));
+		model7 = glm::translate(model7, glm::vec3(-0.875, 0.2, 0.25));
+
+		model7 = glm::rotate(model7, 0.0f, glm::vec3(0, 0, 1));
+
+		model7 = glm::scale(model7, glm::vec3(0.1, 0.35, 0.6));
+
+		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model7));
+
+		glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
+
+		glm::mat4 model8;
+		model8 = glm::translate(model8, glm::vec3(t, 0, tz));
+		model8 = glm::translate(model8, glm::vec3(-0.115, 0.2, 0.75));
+
+		model8 = glm::rotate(model8, 0.0f, glm::vec3(0, 0, 1));
+
+		model8 = glm::scale(model8, glm::vec3(0.875, 0.35, 0.1));
+
+		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model8));
+
+		glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
+
+	glBindTexture(GL_TEXTURE_2D, 0);
+	glBindVertexArray(0);
+}
+
+void Demo::DrawTexturedWall(GLuint shader)
+{
+	UseShader(shader);
+	glBindVertexArray(cubeVAO);
+
+	GLint modelLoc = glGetUniformLocation(shader, "model");
+
 	glm::mat4 modelWall;
-	modelWall = glm::translate(modelWall, glm::vec3(-3, 0, -7));
+	modelWall = glm::translate(modelWall, glm::vec3(0, 0, -7));
 
 	modelWall = glm::rotate(modelWall, 0.0f, glm::vec3(0, 0, 1));
 
-	modelWall = glm::scale(modelWall, glm::vec3(20, 10, 0.1));
+	modelWall = glm::scale(modelWall, glm::vec3(9, 5, 0.1));
 
 	glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(modelWall));
 
@@ -697,7 +894,7 @@ void Demo::DrawTexturedCube(GLuint shader)
 
 	modelWall2 = glm::rotate(modelWall2, 0.0f, glm::vec3(0, 0, 1));
 
-	modelWall2 = glm::scale(modelWall2, glm::vec3(0.1, 10, 20));
+	modelWall2 = glm::scale(modelWall2, glm::vec3(0.1, 5, 10));
 
 	glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(modelWall2));
 
@@ -708,29 +905,29 @@ void Demo::DrawTexturedCube(GLuint shader)
 
 	modelWall3 = glm::rotate(modelWall3, 0.0f, glm::vec3(0, 0, 1));
 
-	modelWall3 = glm::scale(modelWall3, glm::vec3(0.1, 10, 20));
+	modelWall3 = glm::scale(modelWall3, glm::vec3(0.1, 5, 10));
 
 	glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(modelWall3));
 
 	glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
 
 	glm::mat4 modelWall5;
-	modelWall5 = glm::translate(modelWall5, glm::vec3(-3, 0, 13));
+	modelWall5 = glm::translate(modelWall5, glm::vec3(0, 0, 13));
 
 	modelWall5 = glm::rotate(modelWall5, 0.0f, glm::vec3(0, 0, 1));
 
-	modelWall5 = glm::scale(modelWall5, glm::vec3(20, 10, 0.1));
+	modelWall5 = glm::scale(modelWall5, glm::vec3(9, 5, 0.1));
 
 	glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(modelWall5));
 
 	glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
 
 	glm::mat4 modelRoof;
-	modelRoof = glm::translate(modelRoof, glm::vec3(-3, 5, 3));
+	modelRoof = glm::translate(modelRoof, glm::vec3(0, 5, 3));
 
 	modelRoof = glm::rotate(modelRoof, 0.0f, glm::vec3(0, 0, 1));
 
-	modelRoof = glm::scale(modelRoof, glm::vec3(20, 0.1, 20));
+	modelRoof = glm::scale(modelRoof, glm::vec3(9, 0.1, 10));
 
 	glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(modelRoof));
 
@@ -804,7 +1001,6 @@ void Demo::InitCamera()
 	fovy = 45.0f;
 	glfwSetInputMode(this->window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 }
-
 
 void Demo::MoveCamera(float speed)
 {
