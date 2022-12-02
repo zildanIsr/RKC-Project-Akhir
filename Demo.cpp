@@ -112,6 +112,8 @@ void Demo::Update(double deltaTime) {
 void Demo::Render() {
 	
 	glEnable(GL_DEPTH_TEST);
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
 	
@@ -136,6 +138,11 @@ void Demo::Render() {
 	DrawTexturedWhiteboard(this->depthmapShader);
 	DrawTexturedTableDosen(this->depthmapShader);
 	DrawTexturedWall(this->depthmapShader);
+	DrawTexturedDoor(this->depthmapShader);
+	DrawTextureChairDosen(this->depthmapShader);
+	DrawTextureChairDosenAtas(this->depthmapShader);
+	DrawTextureProjector(this->depthmapShader);
+	DrawTexturedScreen(this->depthmapShader);
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
 	
@@ -208,6 +215,40 @@ void Demo::Render() {
 	glBindTexture(GL_TEXTURE_2D, depthMap);
 	DrawTexturedWall(this->shadowmapShader);
 
+	//door
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, texture12);
+	glActiveTexture(GL_TEXTURE1);
+	glBindTexture(GL_TEXTURE_2D, depthMap);
+	DrawTexturedDoor(this->shadowmapShader);
+
+	//kursiDosen
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, texture11);
+	glActiveTexture(GL_TEXTURE1);
+	glBindTexture(GL_TEXTURE_2D, depthMap);
+	DrawTextureChairDosen(this->shadowmapShader);
+
+	//kursiDosen atas
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, texture10);
+	glActiveTexture(GL_TEXTURE1);
+	glBindTexture(GL_TEXTURE_2D, depthMap);
+	DrawTextureChairDosenAtas(this->shadowmapShader);
+
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, texture11);
+	glActiveTexture(GL_TEXTURE1);
+	glBindTexture(GL_TEXTURE_2D, depthMap);
+	DrawTextureProjector(this->shadowmapShader);
+
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, texture13);
+	glActiveTexture(GL_TEXTURE1);
+	glBindTexture(GL_TEXTURE_2D, depthMap);
+	DrawTexturedScreen(this->shadowmapShader);
+
+	glDisable(GL_BLEND);
 	glDisable(GL_DEPTH_TEST);
 }
 
@@ -325,6 +366,26 @@ void Demo::BuildTexturedCube()
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	width, height;
 	image = SOIL_load_image("black_wood.jpg", &width, &height, 0, SOIL_LOAD_RGBA);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, image);
+	SOIL_free_image_data(image);
+	glBindTexture(GL_TEXTURE_2D, 0);
+
+	glGenTextures(1, &texture12);
+	glBindTexture(GL_TEXTURE_2D, texture12);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	width, height;
+	image = SOIL_load_image("glass-door.jpg", &width, &height, 0, SOIL_LOAD_RGBA);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, image);
+	SOIL_free_image_data(image);
+	glBindTexture(GL_TEXTURE_2D, 0);
+
+	glGenTextures(1, &texture13);
+	glBindTexture(GL_TEXTURE_2D, texture13);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	width, height;
+	image = SOIL_load_image("lesson.png", &width, &height, 0, SOIL_LOAD_RGBA);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, image);
 	SOIL_free_image_data(image);
 	glBindTexture(GL_TEXTURE_2D, 0);
@@ -935,6 +996,246 @@ void Demo::DrawTexturedWall(GLuint shader)
 
 	glActiveTexture(GL_TEXTURE);
 	glBindTexture(GL_TEXTURE_2D, texture8);
+
+	glBindTexture(GL_TEXTURE_2D, 0);
+	glBindVertexArray(0);
+}
+
+void Demo::DrawTexturedDoor(GLuint shader)
+{
+	UseShader(shader);
+	glBindVertexArray(cubeVAO);
+
+	GLint modelLoc = glGetUniformLocation(shader, "model");
+
+	glm::mat4 modelDoor;
+	modelDoor = glm::translate(modelDoor, glm::vec3(8.9, 1, -3));
+
+	modelDoor = glm::rotate(modelDoor, 0.0f, glm::vec3(0, 0, 1));
+
+	modelDoor = glm::scale(modelDoor, glm::vec3(0.05, 2, 2));
+
+	glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(modelDoor));
+
+	glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
+
+	glBindTexture(GL_TEXTURE_2D, 0);
+	glBindVertexArray(0);
+}
+
+void Demo::DrawTextureChairDosen(GLuint shader)
+{
+	UseShader(shader);
+	glBindVertexArray(cubeVAO);
+
+	GLint modelLoc = glGetUniformLocation(shader, "model");
+
+	glm::mat4 modelCD1;
+	modelCD1 = glm::translate(modelCD1, glm::vec3(-6, 0, -6));
+	modelCD1 = glm::translate(modelCD1, glm::vec3(0, -0.1, 1.7));
+
+	modelCD1 = glm::rotate(modelCD1, 0.0f, glm::vec3(0, 0, 1));
+
+	modelCD1 = glm::scale(modelCD1, glm::vec3(0.1, 0.2, 0.1));
+
+	glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(modelCD1));
+
+	glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
+
+	glm::mat4 modelCD2;
+	modelCD2 = glm::translate(modelCD2, glm::vec3(-6, 0, -6));
+	modelCD2 = glm::translate(modelCD2, glm::vec3(-0, -0.16, 1.9));
+
+	modelCD2 = glm::scale(modelCD2, glm::vec3(0.1, 0.1, 0.2));
+
+	glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(modelCD2));
+
+	glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
+
+	glm::mat4 modelCD3;
+	modelCD3 = glm::translate(modelCD3, glm::vec3(-6, 0, -6));
+	modelCD3 = glm::translate(modelCD3, glm::vec3(-0.1, -0.16, 1.5));
+
+	modelCD3 = glm::rotate(modelCD3, 15.0f, glm::vec3(0, 1, 0));
+
+	modelCD3 = glm::scale(modelCD3, glm::vec3(0.2, 0.1, 0.1));
+
+	glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(modelCD3));
+
+	glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
+
+	glm::mat4 modelCD4;
+	modelCD4 = glm::translate(modelCD4, glm::vec3(-6, 0, -6));
+	modelCD4 = glm::translate(modelCD4, glm::vec3(0.15, -0.16, 1.5));
+
+	modelCD4 = glm::rotate(modelCD4, 359.0f, glm::vec3(0, 1, 0));
+
+	modelCD4 = glm::scale(modelCD4, glm::vec3(0.2, 0.1, 0.1));
+
+	glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(modelCD4));
+
+	glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
+
+	glm::mat4 modelCDK2;
+	modelCDK2 = glm::translate(modelCDK2, glm::vec3(-6, 0, -6));
+	modelCDK2 = glm::translate(modelCDK2, glm::vec3(-0, -0.4, 2));
+
+	modelCDK2 = glm::scale(modelCDK2, glm::vec3(0.1, 0.15, 0.1));
+
+	glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(modelCDK2));
+
+	glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
+
+	glm::mat4 modelCDK3;
+	modelCDK3 = glm::translate(modelCDK3, glm::vec3(-6, 0, -6));
+	modelCDK3 = glm::translate(modelCDK3, glm::vec3(-0.31, -0.4, 1.4));
+
+	//modelCDK3 = glm::rotate(modelCDK3, 15.0f, glm::vec3(0, 1, 0));
+
+	modelCDK3 = glm::scale(modelCDK3, glm::vec3(0.1, 0.15, 0.1));
+
+	glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(modelCDK3));
+
+	glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
+
+	glm::mat4 modelCDK4;
+	modelCDK4 = glm::translate(modelCDK4, glm::vec3(-6, 0, -6));
+	modelCDK4 = glm::translate(modelCDK4, glm::vec3(0.25, -0.4, 1.4));
+
+	//modelCDK4 = glm::rotate(modelCDK4, 359.0f, glm::vec3(0, 1, 0));
+
+	modelCDK4 = glm::scale(modelCDK4, glm::vec3(0.1, 0.15, 0.1));
+
+	glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(modelCDK4));
+
+	glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
+
+	//atas
+	/*glm::mat4 modelCD5;
+	modelCD5 = glm::translate(modelCD5, glm::vec3(-9, 0.2, -7));
+	modelCD5 = glm::translate(modelCD5, glm::vec3(-0.1, 0, 1.7));
+
+	//modelCD5 = glm::rotate(modelCD5, 10.0f, glm::vec3(0, 1, 0));
+
+	modelCD5 = glm::scale(modelCD5, glm::vec3(0.95, 0.15, 0.8));
+
+	glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(modelCD5));
+
+	glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
+
+	glm::mat4 modelCD6;
+	modelCD6 = glm::translate(modelCD6, glm::vec3(-9, 0.9, -7));
+	modelCD6 = glm::translate(modelCD6, glm::vec3(-0.1, -0.29, 1.2));
+
+	modelCD6 = glm::rotate(modelCD6, 0.0f, glm::vec3(0, 1, 0));
+
+	modelCD6 = glm::scale(modelCD6, glm::vec3(0.95, 1, 0.2));
+
+	glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(modelCD6));
+
+	glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);*/
+
+	glBindTexture(GL_TEXTURE_2D, 0);
+	glBindVertexArray(0);
+}
+
+void Demo::DrawTextureChairDosenAtas(GLuint shader)
+{
+	UseShader(shader);
+	glBindVertexArray(cubeVAO);
+
+	GLint modelLoc = glGetUniformLocation(shader, "model");
+
+	//atas
+	glm::mat4 modelCD5;
+	modelCD5 = glm::translate(modelCD5, glm::vec3(-6, 0.2, -6));
+	modelCD5 = glm::translate(modelCD5, glm::vec3(-0.1, 0, 1.7));
+
+	//modelCD5 = glm::rotate(modelCD5, 10.0f, glm::vec3(0, 1, 0));
+
+	modelCD5 = glm::scale(modelCD5, glm::vec3(0.45, 0.1, 0.4));
+
+	glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(modelCD5));
+
+	glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
+
+	glm::mat4 modelCD6;
+	modelCD6 = glm::translate(modelCD6, glm::vec3(-6, 0.9, -6));
+	modelCD6 = glm::translate(modelCD6, glm::vec3(-0.1, -0.29, 1.2));
+
+	modelCD6 = glm::rotate(modelCD6, 0.0f, glm::vec3(0, 1, 0));
+
+	modelCD6 = glm::scale(modelCD6, glm::vec3(0.45, 0.5, 0.1));
+
+	glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(modelCD6));
+
+	glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
+
+	glBindTexture(GL_TEXTURE_2D, 0);
+	glBindVertexArray(0);
+}
+
+void Demo::DrawTextureProjector(GLuint shader)
+{
+	UseShader(shader);
+	glBindVertexArray(cubeVAO);
+
+	GLint modelLoc = glGetUniformLocation(shader, "model");
+
+	glm::mat4 modelProj;
+	modelProj = glm::translate(modelProj, glm::vec3(-5, 4.8, 0));
+
+	modelProj = glm::rotate(modelProj, 0.0f, glm::vec3(0, 0, 1));
+
+	modelProj = glm::scale(modelProj, glm::vec3(0.05, 0.5, 0.05));
+
+	glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(modelProj));
+
+	glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
+
+	glm::mat4 modelProj2;
+	modelProj2 = glm::translate(modelProj2, glm::vec3(-5, 4, 0));
+
+	modelProj2 = glm::rotate(modelProj2, -355.0f, glm::vec3(1, 0, 0));
+
+	modelProj2 = glm::scale(modelProj2, glm::vec3(0.4, 0.2, 0.5));
+
+	glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(modelProj2));
+
+	glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
+
+	glm::mat4 modelProj3;
+	modelProj3 = glm::translate(modelProj3, glm::vec3(-5, 4, -0.51));
+
+	modelProj3 = glm::rotate(modelProj3, -355.0f, glm::vec3(1, 0, 0));
+
+	modelProj3 = glm::scale(modelProj3, glm::vec3(0.4, 0.2, 0));
+
+	glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(modelProj3));
+
+	glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
+
+	glBindTexture(GL_TEXTURE_2D, 0);
+	glBindVertexArray(0);
+}
+
+void Demo::DrawTexturedScreen(GLuint shader)
+{
+	UseShader(shader);
+	glBindVertexArray(cubeVAO);
+
+	GLint modelLoc = glGetUniformLocation(shader, "model");
+
+	glm::mat4 modelLayar;
+	modelLayar = glm::translate(modelLayar, glm::vec3(-5, 2.7, -6.95));
+
+	modelLayar = glm::rotate(modelLayar, 0.0f, glm::vec3(0, 0, 1));
+
+	modelLayar = glm::scale(modelLayar, glm::vec3(1.7, 1.5, 0.5));
+
+	glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(modelLayar));
+
+	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
 	glBindTexture(GL_TEXTURE_2D, 0);
 	glBindVertexArray(0);
