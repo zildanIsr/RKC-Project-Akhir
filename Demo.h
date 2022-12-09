@@ -32,7 +32,10 @@ private:
 	void DrawTexturedTableDosen(GLuint shader);
 	void DrawTexturedWall(GLuint shader);
 	void DrawTexturedDoor(GLuint shader);
+	void DrawTexturedDoor2(GLuint shader);
 	void DrawTexturedPlane(GLuint shader);
+	void DrawTexturedFan(GLuint shader);
+	void DrawTexturedFan2(GLuint shader);
 	void DrawTextureChairDosen(GLuint shader);
 	void DrawTextureChairDosenAtas(GLuint shader);
 	void DrawTextureProjector(GLuint shader);

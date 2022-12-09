@@ -106,15 +106,12 @@ void Demo::ProcessInput(GLFWwindow *window) {
 }
 
 void Demo::Update(double deltaTime) {
-	angle += (float)((deltaTime * 1.5f) / 1500);
+	angle += (float)((deltaTime));
 }
 
 void Demo::Render() {
-	
-	glEnable(GL_DEPTH_TEST);
-	glEnable(GL_BLEND);
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
 	
 	// Step 1 Render depth of scene to texture
@@ -131,18 +128,24 @@ void Demo::Render() {
 	glViewport(0, 0, this->SHADOW_WIDTH, this->SHADOW_HEIGHT);
 	glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
 	glClear(GL_DEPTH_BUFFER_BIT);
+
+	DrawTexturedWall(this->depthmapShader);
+	glEnable(GL_DEPTH_TEST);
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	DrawTexturedCube(this->depthmapShader);
 	DrawTexturedPlane(this->depthmapShader);
 	DrawTexturedChair(this->depthmapShader);
 	DrawTexturedSideWhiteboard(this->depthmapShader);
 	DrawTexturedWhiteboard(this->depthmapShader);
 	DrawTexturedTableDosen(this->depthmapShader);
-	DrawTexturedWall(this->depthmapShader);
 	DrawTexturedDoor(this->depthmapShader);
 	DrawTextureChairDosen(this->depthmapShader);
 	DrawTextureChairDosenAtas(this->depthmapShader);
 	DrawTextureProjector(this->depthmapShader);
 	DrawTexturedScreen(this->depthmapShader);
+	DrawTexturedFan(this->depthmapShader);
+	DrawTexturedFan2(this->depthmapShader);
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
 	
@@ -247,6 +250,18 @@ void Demo::Render() {
 	glActiveTexture(GL_TEXTURE1);
 	glBindTexture(GL_TEXTURE_2D, depthMap);
 	DrawTexturedScreen(this->shadowmapShader);
+
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, texture9);
+	glActiveTexture(GL_TEXTURE1);
+	glBindTexture(GL_TEXTURE_2D, depthMap);
+	DrawTexturedFan(this->shadowmapShader);
+
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, texture12);
+	glActiveTexture(GL_TEXTURE1);
+	glBindTexture(GL_TEXTURE_2D, depthMap);
+	DrawTexturedFan2(this->shadowmapShader);
 
 	glDisable(GL_BLEND);
 	glDisable(GL_DEPTH_TEST);
@@ -375,7 +390,7 @@ void Demo::BuildTexturedCube()
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	width, height;
-	image = SOIL_load_image("glass-door.jpg", &width, &height, 0, SOIL_LOAD_RGBA);
+	image = SOIL_load_image("window.png", &width, &height, 0, SOIL_LOAD_RGBA);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, image);
 	SOIL_free_image_data(image);
 	glBindTexture(GL_TEXTURE_2D, 0);
@@ -1004,12 +1019,13 @@ void Demo::DrawTexturedWall(GLuint shader)
 void Demo::DrawTexturedDoor(GLuint shader)
 {
 	UseShader(shader);
+
 	glBindVertexArray(cubeVAO);
 
 	GLint modelLoc = glGetUniformLocation(shader, "model");
 
 	glm::mat4 modelDoor;
-	modelDoor = glm::translate(modelDoor, glm::vec3(8.9, 1, -3));
+	modelDoor = glm::translate(modelDoor, glm::vec3(9.5, 1, -3));
 
 	modelDoor = glm::rotate(modelDoor, 0.0f, glm::vec3(0, 0, 1));
 
@@ -1251,6 +1267,67 @@ void Demo::DrawTexturedPlane(GLuint shader)
 	glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
 
 	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+
+	glBindTexture(GL_TEXTURE_2D, 0);
+	glBindVertexArray(0);
+}
+
+void Demo::DrawTexturedFan(GLuint shader)
+{
+	UseShader(shader);
+
+	glBindVertexArray(cubeVAO);
+
+	GLint modelLoc = glGetUniformLocation(shader, "model");
+
+	glm::mat4 modelFan2;
+	modelFan2 = glm::translate(modelFan2, glm::vec3(0, 4.2, 4));
+
+	modelFan2 = glm::rotate(modelFan2, -30.0f, glm::vec3(0, 1, 0));
+	modelFan2 = glm::rotate(modelFan2, angle, glm::vec3(0, 1, 0));
+
+	modelFan2 = glm::scale(modelFan2, glm::vec3(.15, 0.05, 1));
+
+	glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(modelFan2));
+
+	glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
+
+	glm::mat4 modelFan3;
+	modelFan3 = glm::translate(modelFan3, glm::vec3(0, 4.2, 4));
+
+	//modelFan3 = glm::rotate(modelFan3, -30.0f, glm::vec3(0, 1, 0));
+	modelFan3 = glm::rotate(modelFan3, angle, glm::vec3(0, 1, 0));
+
+	modelFan3 = glm::scale(modelFan3, glm::vec3(.15, 0.05, 1));
+
+	glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(modelFan3));
+
+	glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
+
+	glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
+
+	glBindTexture(GL_TEXTURE_2D, 0);
+	glBindVertexArray(0);
+}
+
+void Demo::DrawTexturedFan2(GLuint shader)
+{
+	UseShader(shader);
+
+	glBindVertexArray(cubeVAO);
+
+	GLint modelLoc = glGetUniformLocation(shader, "model");
+
+	glm::mat4 modelFan1;
+	modelFan1 = glm::translate(modelFan1, glm::vec3(-0, 4.8, 4));
+
+	modelFan1 = glm::rotate(modelFan1, 0.0f, glm::vec3(0, 0, 1));
+
+	modelFan1 = glm::scale(modelFan1, glm::vec3(0.05, 0.5, 0.05));
+
+	glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(modelFan1));
+
+	glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
 
 	glBindTexture(GL_TEXTURE_2D, 0);
 	glBindVertexArray(0);
